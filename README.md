@@ -2,9 +2,7 @@
 
 A comprehensive deployment guide for setting up a MySQL cluster with integrated monitoring and logging capabilities using ArvanCloud PaaS, Kubernetes, and modern observability tools.
 
-## Architecture Overview
-
-![MySQL Cluster Architecture](docs/architecture-diagram.jpg)
+## 🏬 Architecture Overview
 
 This project implements a development-ready MySQL infrastructure with:
 
