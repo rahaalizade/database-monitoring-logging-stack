@@ -187,7 +187,7 @@ Deploy a Kubernetes-based MySQL primary-secondary cluster using Bitnami's Helm c
 
 ### 🔧 Automate MYSQL backup Steps
 
-1. **Create the cronjob with the volume in order to backup from the database on schedule **
+1. **Create the cronjob with the volume in order to backup from the database on schedule**
    ```bash
    kubectl apply -f cronjob-mysqldump.yml
    ```
@@ -203,7 +203,7 @@ Deploy a Kubernetes-based MySQL primary-secondary cluster using Bitnami's Helm c
    --overrides='{"spec":{"containers":[{"name":"backup-browser","image":"busybox","volumeMounts":[{"name":"backup-storage","mountPath":"/backup"}],"stdin":true,"tty":true}],"volumes":[{"name":"backup-storage","persistentVolumeClaim":{"claimName":"mysql-backup-pvc"}}]}}' \
    -- sh
 
-   / \# ls backup/
+   / # ls backup/
    backup_20250815_201421.sql
    ```
 
