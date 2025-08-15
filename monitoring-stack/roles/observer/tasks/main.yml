@@ -22,6 +22,8 @@
     dest: /opt/prometheus/prometheus.yml
     src: prometheus_main.yml
     mode: 0644
+  notify: restart prometheus
+  
 
 #- name: Create prometheus alert configuration file
 #  copy:
@@ -34,6 +36,7 @@
     dest: /opt/
     src: grafana
     mode: 0644
+  notify: restart grafana
 
 #- name: Create alertmanager configuration file
 #  template:
@@ -45,6 +48,7 @@
   docker_container:
     name: prometheus
     restart_policy: always
+    recreate: true
     image: prom/prometheus:{{ prometheus_version }}
     volumes:
       - /opt/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
@@ -62,6 +66,7 @@
   docker_container:
     name: grafana
     restart_policy: always
+    recreate: true
     image: grafana/grafana:{{ grafana_version }}
     volumes:
       - grafana-data:/var/lib/grafana
