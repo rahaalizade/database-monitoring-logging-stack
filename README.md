@@ -187,6 +187,29 @@ Deploy a Kubernetes-based MySQL primary-secondary cluster using Bitnami's Helm c
    kubectl logs mysql-primary-0
    ```
 
+### 🔧 Automate MYSQL backup Steps
+
+1. **Create the cronjob with the volume in order to backup from the database on schedule **
+   ```bash
+   kubectl apply -f cronjob-mysqldump.yml
+   ```
+
+2. **For testing it instantly, create a job from it**
+   ```bash
+   kubectl create job test-db-backup --from=cronjob/mysql-backup
+   ```
+
+3. **Verify Backup with another pod mounted with that Volume**
+   ```bash
+   kubectl run backup-browser --image=busybox --rm -it \
+   --overrides='{"spec":{"containers":[{"name":"backup-browser","image":"busybox","volumeMounts":[{"name":"backup-storage","mountPath":"/backup"}],"stdin":true,"tty":true}],"volumes":[{"name":"backup-storage","persistentVolumeClaim":{"claimName":"mysql-backup-pvc"}}]}}' \
+   -- sh
+
+   / \# ls backup/
+   backup_20250815_201421.sql
+   ```
+
+
 ### 🔗 Load Balancer Configuration
 
 Configure public IP allocation in ArvanCloud dashboard:
