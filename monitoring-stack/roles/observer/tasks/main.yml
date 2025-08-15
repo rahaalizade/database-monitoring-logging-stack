@@ -1,13 +1,13 @@
 ---
-- name: Create Folder /srv/prometheus if not exist
+- name: Create Folder for prometheus if not exist
   file:
-    path: /srv/prometheus
+    path: /opt/prometheus
     mode: 0755
     state: directory
 
-- name: Create Folder /srv/grafana if not exist
+- name: Create Folder for grafana if not exist
   file:
-    path: /srv/grafana
+    path: /opt/grafana
     mode: 0755
     state: directory
 
@@ -19,7 +19,7 @@
 
 - name: Create prometheus configuration file
   copy:
-    dest: /srv/prometheus/prometheus.yml
+    dest: /opt/prometheus/prometheus.yml
     src: prometheus_main.yml
     mode: 0644
 
@@ -31,7 +31,7 @@
 
 - name: Create grafana configuration files
   copy:
-    dest: /srv/
+    dest: /opt/
     src: grafana
     mode: 0644
 
@@ -47,7 +47,7 @@
     restart_policy: always
     image: prom/prometheus:{{ prometheus_version }}
     volumes:
-      - /srv/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - /opt/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
      # - /srv/prometheus/prometheus_alerts_rules.yml:/etc/prometheus/prometheus_alerts_rules.yml
       - prometheus_main_data:/prometheus
     command: >
@@ -65,8 +65,8 @@
     image: grafana/grafana:{{ grafana_version }}
     volumes:
       - grafana-data:/var/lib/grafana
-      - /srv/grafana/provisioning:/etc/grafana/provisioning
-      - /srv/grafana/dashboards:/var/lib/grafana/dashboards
+      - /opt/grafana/provisioning:/etc/grafana/provisioning
+      - /opt/grafana/dashboards:/var/lib/grafana/dashboards
     env:
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
