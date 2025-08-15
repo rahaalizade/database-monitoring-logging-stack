@@ -52,7 +52,7 @@
     image: prom/prometheus:{{ prometheus_version }}
     volumes:
       - /opt/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-     # - /srv/prometheus/prometheus_alerts_rules.yml:/etc/prometheus/prometheus_alerts_rules.yml
+     # - /opt/prometheus/prometheus_alerts_rules.yml:/etc/prometheus/prometheus_alerts_rules.yml
       - prometheus_main_data:/prometheus
     command: >
       --config.file=/etc/prometheus/prometheus.yml
@@ -84,7 +84,7 @@
 #    image: prom/alertmanager:{{ alertmanager_version }}
 #    volumes:
 #      - alertmanager-data:/data
-#      - /srv/alertmanager:/config
+#      - /opt/alertmanager:/config
 #    command: >
 #      --config.file=/config/alertmanager.yml 
 #      --log.level=debug

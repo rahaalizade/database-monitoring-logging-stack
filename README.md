@@ -2,7 +2,7 @@
 
 A comprehensive deployment guide for setting up a MySQL cluster with integrated monitoring and logging capabilities using ArvanCloud PaaS, Kubernetes, and modern observability tools.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ![MySQL Cluster Architecture](docs/architecture-diagram.jpg)
 
@@ -64,7 +64,7 @@ This project implements a development-ready MySQL infrastructure with:
 - **Helm** (v3.x)
 - **kubectl** configured with cluster access
 - **Ansible** (v2.9+)
-- **Docker** (for local development)
+- **Docker** 
 
 ## 🏛️ Architecture
 
@@ -153,6 +153,7 @@ Deploy a Kubernetes-based MySQL primary-secondary cluster using Bitnami's Helm c
 - Performance tuning
 - Security configurations
 - Metrics exposure with the help of mysqld-exporter on mysql pods
+- Automated backups with scheduled time
 
 ### 📝 Tasks Checklist
 
@@ -163,6 +164,7 @@ Deploy a Kubernetes-based MySQL primary-secondary cluster using Bitnami's Helm c
 - [ ] Configure mysqld-exporter for metrics
 - [ ] Verify container health and database connectivity
 - [ ] Set up load balancer for public access
+- [ ] Create a Cronjob for create backup of the database 
 
 ### 🔧 Deployment Steps
 
@@ -201,22 +203,34 @@ Deploy Prometheus & Grafana stack using Ansible to monitor MySQL performance and
 ### 📁 Project Structure
 
 ```
-monitoring/
-├── inventory/
-│   └── hosts.yml
-├── playbooks/
-│   └── monitoring.yml
-└── roles/
-    ├── observer/
-    │   ├── defaults/main.yml
-    │   ├── files/
-    │   │   ├── grafana/dashboards/
-    │   │   └── prometheus_main.yml
-    │   ├── tasks/main.yml
-    │   └── templates/
-    └── target/
-        ├── defaults/main.yml
-        └── tasks/main.yml
+├── inventory
+│   └── hosts.yml
+├── playbooks
+│   └── monitoring.yml
+├── README.md
+└── roles
+    └── observer
+        ├── files
+        │   ├── grafana
+        │   │   ├── dashboards
+        │   │   │   └── mysql-dashboards
+        │   │   │       ├── mysql-replication-overview.json
+        │   │   │       └── mysqld-exporter.json
+        │   │   └── provisioning
+        │   │       ├── dashboards
+        │   │       │   └── all.yml
+        │   │       └── datasources
+        │   │           └── all.yml
+        │   ├── prometheus_alerts_rules.yml
+        │   └── prometheus_main.yml
+        ├── handlers
+        │   └── main.yml
+        ├── tasks
+        │   └── main.yml
+        └── templates
+            └── alertmanager
+                └── alertmanager.j2
+
 ```
 
 ### 🚀 Deployment Steps
@@ -233,7 +247,7 @@ monitoring/
 
 2. **Deploy monitoring stack**
    ```bash
-   ansible-playbook -i inventory/hosts.yml playbooks/monitoring.yml --become
+   ansible-playbook -i inventory/hosts.yml playbooks/monitoring.yml --become (if you didn't use root for ansible_user)
    ```
 
 3. **Access services**
