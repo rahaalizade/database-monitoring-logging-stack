@@ -1,0 +1,59 @@
+- name: Ensure vm.max_map_count is set to 262144
+  ansible.posix.sysctl:
+    name: vm.max_map_count
+    value: 262144
+    state: present
+    sysctl_set: yes
+    reload: yes
+
+- name: Add env file
+  ansible.builtin.template:
+    src: templates/.env.j2
+    dest: "{{ docker_project_dir }}/.env"
+
+- name: Add kibana config file
+  ansible.builtin.template:
+    src: templates/kibana.yml.j2
+    dest: "{{ docker_project_dir }}/kibana.yml"
+
+- name: Add filebeat config file
+  ansible.builtin.copy:
+    src: files/filebeat.yml
+    dest: "{{ docker_project_dir }}/filebeat.yml"
+
+- name: Add logstash config file
+  ansible.builtin.copy:
+    src: files/logstash.conf
+    dest: "{{ docker_project_dir }}/logstash/pipeline/logstash.conf"
+
+- name: Add logstash templates 
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: 'files/logstash_templates/kernel-template.json', dest: '{{ docker_project_dir }}/logstash/es_templates/kernel-template.json' }
+    - { src: 'files/logstash_templates/auth-template.json', dest: '{{ docker_project_dir }}/logstash/es_templates/auth-template.json' }
+    - { src: 'files/logstash_templates/syslog-template.json', dest: '{{ docker_project_dir }}/logstash/es_templates/syslog-template.json' }
+
+- name: Copy docker compose to each machine
+  ansible.builtin.template:
+    src: templates/docker-compose.yml.j2
+    dest: "{{ docker_project_dir }}/docker-compose.yml"
+  notify:
+    - Restart-Docker-Compose
+
+- name: Check whether docker-compose is running
+  ansible.builtin.shell:
+    cmd: |
+      docker compose ps -q
+    chdir: "{{ docker_project_dir }}"
+  register: docker_state
+  changed_when: false
+
+- name: Start Elastic docker-compose
+  ansible.builtin.shell:
+    cmd: |
+      docker compose up -d
+    chdir: "{{ docker_project_dir }}"
+  when:
+    - docker_state.stdout_lines | length == 0

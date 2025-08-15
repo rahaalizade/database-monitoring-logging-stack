@@ -1,0 +1,52 @@
+{
+    "index_patterns": ["logs-syslog-*"],
+    "template": {
+      "mappings": {
+        "properties": {
+          "@timestamp": { "type": "date" },
+          "processed_at": {
+            "type": "date",
+            "format": "yyyy-MM-dd HH:mm:ss"
+          },
+          "log_type": { "type": "keyword" },
+          "message": { "type": "text" },
+          "event": {
+            "properties": {
+              "original": { "type": "text" }
+            }
+          },
+          "host": {
+            "properties": {
+              "name": { "type": "keyword" },
+              "ip": { "type": "ip" }
+            }
+          },
+          "service": { "type": "keyword" },
+          "agent": {
+            "properties": {
+              "id": { "type": "keyword" },
+              "name": { "type": "keyword" },
+              "type": { "type": "keyword" },
+              "version": { "type": "keyword" }
+            }
+          },
+          "input": {
+            "properties": {
+              "type": { "type": "keyword" }
+            }
+          },
+          "log": {
+            "properties": {
+              "file": {
+                "properties": {
+                  "path": { "type": "keyword" }
+                }
+              },
+              "offset": { "type": "long" }
+            }
+          },
+          "tags": { "type": "keyword" }
+        }
+      }
+    }
+  }

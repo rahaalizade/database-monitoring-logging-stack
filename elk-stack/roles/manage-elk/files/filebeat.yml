@@ -1,0 +1,49 @@
+filebeat.inputs:
+# Auth logs collection
+- type: log
+  enabled: true
+  paths:
+    - /var/log/auth.log
+  fields:
+    log_type: auth
+  fields_under_root: true
+
+# Kernel logs collection
+- type: log
+  enabled: true
+  paths:
+    - /var/log/kern.log
+    - /var/log/dmesg
+  fields:
+    log_type: kernel
+    service: kernel
+  fields_under_root: true
+
+# Syslog collection
+- type: log
+  enabled: true
+  paths:
+    - /var/log/syslog
+    - /var/log/messages
+  fields:
+    log_type: syslog
+    service: system
+  fields_under_root: true
+
+
+# Output to Logstash
+output.logstash:
+  hosts: ["logstash:5044"]
+
+    ## Processors to enrich data
+    #processors:
+    #  - add_host_metadata:
+    #      when.not.contains.tags: forwarded
+    #  - add_docker_metadata: ~
+    #  - add_kubernetes_metadata: ~
+    #  - drop_fields:
+    #      fields: ["agent", "ecs", "host.architecture", "host.os.family"]
+
+# Logging configuration
+logging.level: info
+logging.to_files: true

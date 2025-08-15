@@ -1,0 +1,10 @@
+- name: Create directories for Elastic project
+  ansible.builtin.file:
+     state: directory
+     path: "{{ directory }}"
+     recurse: True
+     owner: 1000 
+     group: 0
+  loop: "{{ project_directories }}"
+  loop_control:
+    loop_var: directory

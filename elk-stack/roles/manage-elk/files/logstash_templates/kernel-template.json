@@ -1,0 +1,32 @@
+{
+    "index_patterns": ["logs-kernel-*"],
+    "template": {
+      "mappings": {
+        "properties": {
+          "@timestamp": { "type": "date" },
+          "processed_at": {
+            "type": "date",
+            "format": "yyyy-MM-dd HH:mm:ss"
+          },
+          "log_type": { "type": "keyword" },
+          "message": { "type": "text" },
+          "event": {
+            "properties": {
+              "original": { "type": "text" }
+            }
+          },
+          "host": {
+            "properties": {
+              "name": { "type": "keyword" }
+            }
+          },
+          "agent": {
+            "properties": {
+              "type": { "type": "keyword" },
+              "version": { "type": "keyword" }
+            }
+          }
+        }
+      }
+    }
+  }

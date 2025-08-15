@@ -1,0 +1,8 @@
+- name: Destroy Kafka cluster
+  hosts: all
+  become: True
+  tasks:
+    - name: Destroy elasticsearch and kafka containers
+      ansible.builtin.include_role:
+        name: manage-elk
+        tasks_from: destroy.yml

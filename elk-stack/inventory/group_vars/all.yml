@@ -1,0 +1,109 @@
+kibana:
+  server_name: kibana
+  username: kibana_system
+  elasticsearch_hosts: "http://188.121.119.6:9209"
+  host: 0.0.0.0
+
+elasticsearch:
+  cluster_name: elk-log
+  type: single-node
+  http_port: "9209"
+  transport_port: 9309
+  ip_list:
+    - 188.121.119.6
+  discovery_hosts: 188.121.119.6:9309
+
+docker_config:
+  live-restore: true
+  log-opts: 
+    max-file: "3"
+    max-size: 256m
+  default-address-pools: 
+    - base: "10.240.0.0/17"
+      size: 24
+    - base: "10.240.128.0/17"
+      size: 24
+
+docker_project_dir: "/opt/elk-log"
+
+project_directories:
+  - "{{ docker_project_dir }}"
+  - "{{ docker_project_dir }}/data"
+  - "{{ docker_project_dir }}/logstash"
+  - "{{ docker_project_dir }}/logstash/pipeline"
+  - "{{ docker_project_dir }}/logstash/es_templates"
+
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    image: elastic/elasticsearch:8.6.2
+    volumes:
+      - ./data:/usr/share/elasticsearch/data/
+    ports:
+      - "9209:9200"
+    environment:
+      - ES_JAVA_OPTS=-Xmx4g -Xms4g
+      - cluster.name=$CLUSTER_NAME
+      - discovery.type=$DISCOVERY_TYPE
+      - network.publish_host=$NODE_NAME
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.security.authc.api_key.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - action.auto_create_index=true
+
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    restart: always
+
+  kibana:
+    image: elastic/kibana:8.6.2
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - "5609:5601"
+    depends_on:
+      - elasticsearch
+    restart: always
+
+  logstash:
+    image: elastic/logstash:8.6.2
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ./logstash/es_templates/:/usr/share/logstash/es_templates/
+    ports:
+      - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "9600:9600"
+      - "3554:3554/tcp"
+      - "3554:3554/udp"
+      - "6570:6570/udp"
+      - "6570:6570/tcp"
+    environment:
+      LS_JAVA_OPTS: "-Xmx1g -Xms1g"
+      xpack.monitoring.enabled: False 
+      PIPELINE_BATCH_SIZE: 1024
+    depends_on:
+      - elasticsearch
+    restart: always
+
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.6.2
+    user: root
+    command: filebeat -e -strict.perms=false
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/contaienrs:ro
+    depends_on:
+      - kibana
+      - logstash
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "2048m"
+        max-file: "2"

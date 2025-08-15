@@ -1,0 +1,40 @@
+- name: Check if docker is installed
+  tags:
+    - install-docker
+  ansible.builtin.shell: |
+    command -v docker
+  register: docker_command
+  ignore_errors: True
+  changed_when: docker_command.rc != 0
+
+- name: Installing docker
+  tags:
+    - install-docker
+  when: 
+    - docker_command.rc != 0
+  block:
+    - name: Downloading docker install script
+      ansible.builtin.get_url:
+        url: https://get.docker.com/
+        dest: /tmp/docker-install.sh
+        mode: '0750'
+
+    - name: Installing docker via script
+      ansible.builtin.shell: /bin/bash /tmp/docker-install.sh
+
+- name: Change docker configuration (daemon.json)
+  tags:
+    - install-docker
+  ansible.builtin.template:
+    src: templates/daemon.json.j2
+    dest: "/etc/docker/daemon.json"
+  notify:
+    - Restart-Docker
+
+- name: Ensure Docker service is running and enabled
+  tags:
+    - install-docker
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: True

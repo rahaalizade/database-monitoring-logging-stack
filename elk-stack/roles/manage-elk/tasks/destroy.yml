@@ -1,0 +1,13 @@
+- name: Check whether the containers are running or not
+  ansible.builtin.shell:
+    chdir: "{{ docker_project_dir }}"
+    cmd: "docker compose ps -q"
+  register: elk_state
+  changed_when: False
+
+- name: Destroy all containers
+  ansible.builtin.shell:
+    chdir: "{{ docker_project_dir }}"
+    cmd: "docker compose down"
+  when: 
+    - elk_state.stdout_lines | length > 0

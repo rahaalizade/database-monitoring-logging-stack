@@ -1,0 +1,10 @@
+version: '3.9'
+services:
+
+#{% if additional_services is defined %}
+#  {{ additional_services | to_nice_yaml(indent=2) | indent(2) }}
+#{% endif %}
+
+{% if services is defined %}
+  {{ services | to_nice_yaml(indent=2) | indent(2) }}
+{% endif %}

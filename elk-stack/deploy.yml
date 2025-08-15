@@ -1,0 +1,21 @@
+- name: Make project directories
+  hosts: all
+  become: True
+  tasks:
+    - name: Create directories for Elastic project
+      ansible.builtin.include_role:
+        name: manage-elk
+        tasks_from: mkdir.yml
+
+- name: Deploying Elastic cluster
+  hosts: all
+  become: True
+  roles:
+    - install-docker
+    - manage-elk
+
+    #- name: Change users kibana and others
+    #  hosts: cert_generator
+    #  become: True
+    #  roles:
+    #    - change-elk-pass
