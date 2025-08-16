@@ -9,6 +9,8 @@
 
 - name: Deploying Monitoring Stack
   hosts: all
+  vars_files:
+    - roles/observer/vars/secrets.yml
   become: True
   roles:
     - install-docker

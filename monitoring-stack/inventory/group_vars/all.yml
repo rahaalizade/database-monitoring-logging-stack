@@ -8,7 +8,7 @@ project_directories:
 services:
 
   prometheus:
-    image: prom/prometheus:v2.36.2
+    image: prom/prometheus:v3.5.0
     volumes:
       - "{{ docker_project_dir }}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
       - ./prometheus/prometheus_data:/prometheus
@@ -17,6 +17,7 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
     ports:
       - 9090:9090
 
@@ -66,16 +67,21 @@ services:
   #   restart: always
 
   grafana:
-    image: grafana/grafana
-    user: "472"
+    image: grafana/grafana:11.3.0
+    user: "0"
     depends_on:
       - prometheus
     ports:
       - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD="{{ grafana_admin_password }}"
+      - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       -  ./grafana/grafana_data:/var/lib/grafana
       - "{{ docker_project_dir }}/grafana/provisioning:/etc/grafana/provisioning"
       - /opt/grafana/dashboards:/var/lib/grafana/dashboards
+      
 
     restart: always
 
