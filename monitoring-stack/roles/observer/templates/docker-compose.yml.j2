@@ -1,0 +1,6 @@
+version: '3.9'
+services:
+
+{% if services is defined %}
+  {{ services | to_nice_yaml(indent=2) | indent(2) }}
+{% endif %}

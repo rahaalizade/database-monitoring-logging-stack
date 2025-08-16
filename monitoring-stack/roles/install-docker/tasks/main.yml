@@ -22,14 +22,6 @@
     - name: Installing docker via script
       ansible.builtin.shell: /bin/bash /tmp/docker-install.sh
 
-- name: Change docker configuration (daemon.json)
-  tags:
-    - install-docker
-  ansible.builtin.template:
-    src: templates/daemon.json.j2
-    dest: "/etc/docker/daemon.json"
-  notify:
-    - Restart-Docker
 
 - name: Ensure Docker service is running and enabled
   tags:

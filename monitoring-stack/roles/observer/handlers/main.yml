@@ -9,3 +9,10 @@
     name: grafana
     state: started
     restart: true
+
+- name: Restart-Docker-Compose
+  ansible.builtin.shell:
+    cmd: |
+      docker compose down
+      docker compose up -d
+    chdir: "{{ docker_project_dir }}"

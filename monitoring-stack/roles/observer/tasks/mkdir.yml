@@ -1,0 +1,12 @@
+- name: Create directories for Monitoring project
+  ansible.builtin.file:
+    state: directory
+    path: "{{ directory }}"
+    owner: "65534"  # nobody user
+    group: "65534"  # nobody group
+    mode: "0755"
+    recurse: yes
+  become: yes
+  loop: "{{ project_directories }}"
+  loop_control:
+    loop_var: directory
