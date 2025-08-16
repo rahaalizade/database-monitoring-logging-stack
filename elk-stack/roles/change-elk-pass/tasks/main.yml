@@ -1,4 +1,0 @@
-- name: Change default users password
-  community.docker.docker_container_exec:
-    container: elasticsearch
-    command: /bin/bash -c "bin/elasticsearch-setup-passwords interactive < /usr/share/elasticsearch/config/certs/elastic-pass"

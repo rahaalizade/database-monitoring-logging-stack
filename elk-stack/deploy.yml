@@ -13,9 +13,3 @@
   roles:
     - install-docker
     - manage-elk
-
-    #- name: Change users kibana and others
-    #  hosts: cert_generator
-    #  become: True
-    #  roles:
-    #    - change-elk-pass
