@@ -35,7 +35,7 @@
     - { src: 'files/logstash_templates/auth-template.json', dest: '{{ docker_project_dir }}/logstash/es_templates/auth-template.json' }
     - { src: 'files/logstash_templates/syslog-template.json', dest: '{{ docker_project_dir }}/logstash/es_templates/syslog-template.json' }
 
-- name: Copy docker compose to each machine
+- name: Copy docker compose to the machine
   ansible.builtin.template:
     src: templates/docker-compose.yml.j2
     dest: "{{ docker_project_dir }}/docker-compose.yml"
