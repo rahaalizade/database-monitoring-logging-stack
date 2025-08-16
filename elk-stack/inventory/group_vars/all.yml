@@ -92,7 +92,7 @@ services:
 
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:8.6.2
+    image: elastic/filebeat:8.6.2
     user: root
     command: filebeat -e -strict.perms=false
     volumes:

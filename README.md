@@ -280,7 +280,7 @@ Deploy Prometheus & Grafana stack using Ansible to monitor MySQL performance and
 
 2. **Deploy monitoring stack**
    ```bash
-   ansible-playbook -i inventory/hosts.yml playbooks/monitoring.yml --become (if you didn't use root for ansible_user)
+   ansible-playbook -i inventory/hosts.yml playbooks/monitoring.yml --become --vault-password-file=.vault_pass (if you didn't use root for ansible_user)
    ```
 
 3. **Access services**
