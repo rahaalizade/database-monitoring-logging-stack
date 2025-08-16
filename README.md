@@ -33,7 +33,7 @@ This project implements a development-ready MySQL infrastructure with:
 - **Performance Monitoring**: Comprehensive metrics collection via mysqld-exporter
 - **Real-time Dashboards**: Pre-configured Grafana dashboards for MySQL insights
 - **Centralized Logging**: ELK stack for log aggregation and analysis
-- **Security**: Proper secret management and network isolation
+- **Security**: Proper secret management like ansible-vault
 - **Scalability**: Kubernetes-native deployment for easy scaling
 - **Automation**: Ansible playbooks for infrastructure as code
 
@@ -255,6 +255,18 @@ Deploy Prometheus & Grafana stack using Ansible to monitor MySQL performance and
 ```
 
 ### 🚀 Deployment Steps
+
+0. **Configure credentials**
+   ```yaml
+   Try to create it with this command:
+   ```
+   ```bash
+   ansible-vault create roles/observer/vars/secrets.yml
+   ```
+   ```yaml
+   with this format in it ==> vault_VARIABLE_NAME: VARIABLE_VALUE
+   for reducing complexity define a variable named .vault_pass for your vault password
+   ```
 
 1. **Configure inventory**
    ```yaml
