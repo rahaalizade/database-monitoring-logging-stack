@@ -3,6 +3,7 @@ version: '3.9'
 services:
   prometheus:
     image: prom/prometheus:v2.36.2
+    user: "65534:65534"
     volumes:
       - "{{ docker_project_dir }}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
       - "{{ docker_project_dir }}/prometheus/prometheus_data:/prometheus"

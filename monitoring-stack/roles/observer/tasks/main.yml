@@ -90,15 +90,23 @@
 #      --log.level=debug
 #    published_ports: "9093:9093"
 
-- name: Add Prometehus config file
+- name: Copy Prometehus config file
   ansible.builtin.copy:
     src: prometheus_main.yml
     dest: "{{ docker_project_dir }}/prometheus/prometheus.yml"
+    owner: "65534"
+    group: "65534"
+    mode: "0644"
+  become: yes
 
 - name: Add Grafana files
   ansible.builtin.copy:
     src: grafana
     dest: "{{ docker_project_dir }}"
+    owner: "65534"
+    group: "65534"
+    mode: "0644"
+  become: yes
 
 - name: Copy docker compose to the machine
   ansible.builtin.template:
@@ -109,6 +117,16 @@
     mode: '0644'
   notify:
     - Restart-Docker-Compose
+    - Fix-Prometheus-Permissions
+
+# - name: Fix prometheus permissions for prometheus data
+#   ansible.builtin.file:
+#     path: /opt/monitoring-stack/prometheus/prometheus_data
+#     owner: "65534"
+#     group: "65534"
+#     mode: "0755"
+#     recurse: yes
+#   become: yes
 
 - name: Check whether docker-compose is running
   ansible.builtin.shell:

@@ -16,3 +16,11 @@
       docker compose down
       docker compose up -d
     chdir: "{{ docker_project_dir }}"
+
+- name: Fix-Prometheus-Permissions
+  ansible.builtin.file:
+    path: "{{ docker_project_dir }}/prometheus"
+    owner: "65534"
+    group: "65534"
+    recurse: yes
+  become: yes
