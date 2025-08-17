@@ -1,7 +1,7 @@
 kibana:
   server_name: kibana
   username: kibana_system
-  elasticsearch_hosts: "http://188.121.119.6:9209"
+  elasticsearch_hosts: "http://elasticsearch:9200"
   host: 0.0.0.0
 
 elasticsearch:
@@ -9,9 +9,6 @@ elasticsearch:
   type: single-node
   http_port: "9209"
   transport_port: 9309
-  ip_list:
-    - 188.121.119.6
-  discovery_hosts: 188.121.119.6:9309
 
 docker_config:
   live-restore: true
@@ -43,14 +40,14 @@ services:
       - "9209:9200"
     environment:
       - ES_JAVA_OPTS=-Xmx4g -Xms4g
-      - cluster.name=$CLUSTER_NAME
-      - discovery.type=$DISCOVERY_TYPE
-      - network.publish_host=$NODE_NAME
+      - cluster.name=${CLUSTER_NAME}
+      - discovery.type=${DISCOVERY_TYPE}
+      - network.publish_host=${NODE_NAME}
       - bootstrap.memory_lock=true
       - xpack.security.enabled=false
       - xpack.security.authc.api_key.enabled=false
       - xpack.security.http.ssl.enabled=false
-      - action.auto_create_index=true
+      - ingest.geoip.downloader.enabled=false
 
     ulimits:
       memlock:
