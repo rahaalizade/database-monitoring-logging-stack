@@ -1,5 +1,5 @@
 - name: Make project directories
-  hosts: all
+  hosts: all:!monitoring-stack
   become: True
   tasks:
     - name: Create directories for Elastic project
@@ -8,9 +8,41 @@
         tasks_from: mkdir.yml
 
 - name: Deploying Elastic cluster
-  hosts: all
+  hosts: elk-stack
   become: True
   roles:
     - install-docker
     - manage-elk
     - setup-datastream
+
+- name: Deploy Filebeat only
+  hosts: monitoring-stack
+  become: yes
+  roles:
+    - install-docker
+  tasks:
+    - name: Create Filebeat directory
+      file:
+        path: /opt/filebeat
+        state: directory
+        mode: '0755'
+
+    - name: Copy Filebeat config
+      template:
+        src: roles/manage-elk/templates/filebeat.yml.j2
+        dest: /opt/filebeat/filebeat.yml
+        mode: '0644'
+    
+    - name: Run Filebeat container
+      docker_container:
+        name: filebeat
+        image: elastic/filebeat:8.6.2
+        hostname: "{{ ansible_hostname }}"
+        user: root
+        command: filebeat -e -strict.perms=false
+        volumes:
+          - /opt/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+          - /var/log:/var/log:ro
+          - /var/lib/docker/containers:/var/lib/docker/containers:ro
+        restart_policy: always
+        

@@ -17,8 +17,8 @@
     dest: "{{ docker_project_dir }}/kibana.yml"
 
 - name: Add filebeat config file
-  ansible.builtin.copy:
-    src: files/filebeat.yml
+  ansible.builtin.template:
+    src: templates/filebeat.yml.j2
     dest: "{{ docker_project_dir }}/filebeat.yml"
 
 - name: Add logstash config file

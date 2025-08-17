@@ -10,6 +10,8 @@ elasticsearch:
   http_port: "9209"
   transport_port: 9309
 
+logstash_host: "37.32.14.70:5044"
+
 docker_config:
   live-restore: true
   log-opts: 
@@ -33,6 +35,7 @@ project_directories:
 services:
   elasticsearch:
     container_name: elasticsearch
+    hostname: elasticsearch
     image: elastic/elasticsearch:8.6.2
     volumes:
       - ./data:/usr/share/elasticsearch/data/
@@ -57,6 +60,7 @@ services:
 
   kibana:
     image: elastic/kibana:8.6.2
+    hostname: kibana
     volumes:
       - ./kibana.yml:/usr/share/kibana/config/kibana.yml
     ports:
@@ -67,6 +71,7 @@ services:
 
   logstash:
     image: elastic/logstash:8.6.2
+    hostname: logstash
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
       - ./logstash/es_templates/:/usr/share/logstash/es_templates/
@@ -90,6 +95,7 @@ services:
 
   filebeat:
     image: elastic/filebeat:8.6.2
+    hostname: "{{ ansible_hostname }}"
     user: root
     command: filebeat -e -strict.perms=false
     volumes:

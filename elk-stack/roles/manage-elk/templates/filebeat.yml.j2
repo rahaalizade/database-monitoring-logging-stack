@@ -1,3 +1,6 @@
+name: "{{ ansible_hostname }}"  
+host.name: "{{ ansible_hostname }}"
+
 filebeat.inputs:
 # Auth logs collection
 - type: log
@@ -33,7 +36,7 @@ filebeat.inputs:
 
 # Output to Logstash
 output.logstash:
-  hosts: ["logstash:5044"]
+  hosts: ["{{ logstash_host }}"]
 
     ## Processors to enrich data
     #processors:
