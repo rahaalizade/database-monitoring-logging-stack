@@ -47,21 +47,21 @@ This project implements a development-ready MySQL infrastructure with:
 - 20 GB SSD storage
 
 **Monitoring Server:**
-- 2 CPU cores
+-  CPU cores
 - 4 GB RAM
-- 50 GB storage
+- 30-50 GB storage
 
 **Logging Server (ELK):**
-- 4 CPU cores
-- 8 GB RAM
-- 75 GB storage
+- 6 or 8 CPU cores
+- 12 GB RAM
+- 30-50 GB storage
 
 ### Tools & Dependencies
 
 - **Kubernetes Cluster** (ArvanCloud PaaS)
 - **Helm** (v3.x)
 - **kubectl** configured with cluster access
-- **Ansible** (v2.9+)
+- **Ansible** 
 - **Docker** 
 
 ## 🏛️ Architecture
@@ -91,9 +91,15 @@ The project follows a three-tier architecture:
 1. **Clone the repository**
    ```bash
    git clone https://github.com/yourusername/mysql-cluster-monitoring.git
-   cd mysql-cluster-monitoring
-   cd monitoring-stack
-   cd elk-stack
+   and you will see three 2 ansible playbooks and one helm chart
+   ```
+
+1.5. **Attention**
+   ```bash
+   before everything SET IP OF YOUR ELASTIC AND MONITORING STACK in these 3 files!
+   	elk-stack/inventory/group_vars/all.yml
+	   elk-stack/inventory/hosts.yml
+	   monitoring-stack/inventory/hosts.yml
    ```
 
 2. **Configure kubectl**
@@ -103,7 +109,7 @@ The project follows a three-tier architecture:
    kubectl get pods -n <the namespace you provided when setting up the mysql cluster on PaaS environment>
    ```
 
-3. **Add Bitnami Helm repository**
+3. **Add Bitnami Helm repository (This is for initial setup on PaaS)**
    ```bash
    After helm repo installed in PaaS environment try to pull it with this command to easily work on it \!
    helm pull mysql/mysql --untar
@@ -115,7 +121,7 @@ The project follows a three-tier architecture:
 The mysqld-exporter collects comprehensive MySQL metrics:
 
 ```bash
-curl http://load-balancer-ip:9104/metrics
+curl http://<load-balancer-ip>:9104/metrics
 ```
 
 Key metrics include:
@@ -124,23 +130,26 @@ Key metrics include:
 - Replication lag
 - InnoDB status
 - Buffer pool utilization
+- slow queries
 
 
 4. **Deploy the complete stack**
    ```bash
    # Phase 1: MySQL Cluster
+   First of all check your kubernetes context
    helm upgrade --install mysql mysql -f values.yaml ./
    
    # Phase 2: Monitoring
    First of all try to ping your hosts to make sure that your ansible has been properly connected with:
    ansible -i inventory/hosts.yml -m ping all
    Then install it with: 
-   ansible-playbook -i inventory/hosts.yml playbooks/monitoring.yml --become
+   ansible-playbook -i inventory/hosts.yml deploy.yml --vault-password-file=.vault_pass --become -i <Identity File>
    
    # Phase 3: Logging
-   Install it using ansible with:
-   ansible-playbook -i inventory/hosts.yml deploy.yml --become
+   Install it using ansible via:
+   ansible-playbook -i inventory/hosts.yml deploy.yml --become -i <Identity File>
    ```
+   This will install elk with filebeat on the server that you want to be your ELK-Stack server, in addition it will install filebeat as a docker container on your other server which will be your Monitoring-Stack
 
 ## Phase 1: MySQL Cluster Deployment
 
@@ -148,10 +157,10 @@ Key metrics include:
 
 Deploy a Kubernetes-based MySQL primary-secondary cluster using Bitnami's Helm chart with:
 - Automated replication setup
-- Performance tuning
-- Security configurations
-- Metrics exposure with the help of mysqld-exporter on mysql pods
-- Automated backups with scheduled time
+- Performance tuning (Optional)
+- Security configurations (Using kubernetes sercret manager)
+- Metrics exposure with the help of mysqld-exporter on mysql pods (mysqld exporter as a container in the pod)
+- Automated backups with scheduled time (Using cronjobs in kubernetes)
 
 ### 📝 Tasks Checklist
 
@@ -162,11 +171,11 @@ Deploy a Kubernetes-based MySQL primary-secondary cluster using Bitnami's Helm c
 - [ ] Configure mysqld-exporter for metrics
 - [ ] Verify container health and database connectivity
 - [ ] Set up load balancer for public access
-- [ ] Create a Cronjob for create backup of the database 
+- [ ] Create a Manifest for Cronjob for create backup of the database 
 
 ### 🔧 Deployment Steps
 
-1. **Create the MySQL credentials secret with commandline or using Arvan UI(simple way)**
+1. **Create the MySQL credentials secret with commandline or using Arvan UI (simple way)**
    ```bash
    kubectl create secret generic mysql-credentials \
      --from-literal=mysql-root-password='your-root-password' \
@@ -183,6 +192,7 @@ Deploy a Kubernetes-based MySQL primary-secondary cluster using Bitnami's Helm c
    ```bash
    kubectl get pods -n <NAMESPACE> -l app.kubernetes.io/name=mysql
    kubectl logs mysql-primary-0
+   kubectl logs mysql-secondary-0
    ```
 
 ### 🔧 Automate MYSQL backup Steps
@@ -210,8 +220,8 @@ Deploy a Kubernetes-based MySQL primary-secondary cluster using Bitnami's Helm c
 
 ### 🔗 Load Balancer Configuration
 
-Configure public IP allocation in ArvanCloud dashboard:
-- **Ports**: 3306 (MySQL), 9104 (Metrics)
+Configure public IP allocation for mysql-primary and mysql-secondary in ArvanCloud dashboard:
+- **Ports**: 9104 (Metrics)
 - **Protocol**: TCP
 - **Type**: Load Balancer
 
@@ -219,54 +229,21 @@ Configure public IP allocation in ArvanCloud dashboard:
 
 ### 🎯 Objectives
 
-Deploy Prometheus & Grafana stack using Ansible to monitor MySQL performance and cluster health.
-
-### 📁 Project Structure
-
-```
-├── inventory
-│   └── hosts.yml
-├── playbooks
-│   └── monitoring.yml
-├── README.md
-└── roles
-    └── observer
-        ├── files
-        │   ├── grafana
-        │   │   ├── dashboards
-        │   │   │   └── mysql-dashboards
-        │   │   │       ├── mysql-replication-overview.json
-        │   │   │       └── mysqld-exporter.json
-        │   │   └── provisioning
-        │   │       ├── dashboards
-        │   │       │   └── all.yml
-        │   │       └── datasources
-        │   │           └── all.yml
-        │   ├── prometheus_alerts_rules.yml
-        │   └── prometheus_main.yml
-        ├── handlers
-        │   └── main.yml
-        ├── tasks
-        │   └── main.yml
-        └── templates
-            └── alertmanager
-                └── alertmanager.j2
-
-```
+Deploy Prometheus & Grafana stack using Ansible to monitor MySQL performance and cluster health of monitoring and elastic stacks.
 
 ### 🚀 Deployment Steps
 
 0. **Configure credentials**
-   ```yaml
-   Try to create it with this command:
-   ```
+
+   Try to create it with this command(just the first time):
+
    ```bash
    ansible-vault create roles/observer/vars/secrets.yml
    ```
-   ```yaml
+
    with this format in it ==> vault_VARIABLE_NAME: VARIABLE_VALUE
-   for reducing complexity define a variable named .vault_pass for your vault password
-   ```
+   for reducing complexity define a variable named .vault_pass for your vault password and pass it with your command
+
 
 1. **Configure inventory**
    ```yaml
@@ -280,12 +257,12 @@ Deploy Prometheus & Grafana stack using Ansible to monitor MySQL performance and
 
 2. **Deploy monitoring stack**
    ```bash
-   ansible-playbook -i inventory/hosts.yml playbooks/monitoring.yml --become --vault-password-file=.vault_pass (if you didn't use root for ansible_user)
+   ansible-playbook -i inventory/hosts.yml deploy.yml --become --vault-password-file=.vault_pass 
    ```
 
 3. **Access services**
    - **Prometheus**: `http://your-server-ip:9090`
-   - **Grafana**: `http://your-server-ip:3000` (admin/admin)
+   - **Grafana**: `http://your-server-ip:3000`
 
 ## Phase 3: Logging Stack Setup
 
@@ -301,6 +278,7 @@ Implement ELK stack (Elasticsearch, Logstash, Kibana, Filebeat) for centralized 
 - [ ] Verify cluster health and service status
 - [ ] Configure Logstash for log separation (Auth, Syslog, Kernel)
 - [ ] Create index patterns in Kibana
+- [ ] Create dashboards for different indices in Kibana
 - [ ] Optional: Implement ILM policies
 
 ### 🔧 Deployment Steps
@@ -314,28 +292,30 @@ Implement ELK stack (Elasticsearch, Logstash, Kibana, Filebeat) for centralized 
    ```yaml
    # Logstash pipeline configuration
       input {
-        beats { port => 5044 }
-      }
+         beats { port => 5044 }
+         }
 
-      filter {
-        mutate {
-          add_field => { "processed_at" => "%{+YYYY-MM-dd'T'HH:mm:ssZ}" }  # T and timezone
-      }
-      date {
-         match => ["processed_at", "ISO8601"]
-         target => "processed_at"
-      }
-      }
-      output {
-      if [log_type] == "auth" {
-         elasticsearch {
-            hosts => ["188.121.119.6:9209"]
-            index => "logs-auth-%{+YYYY.MM.dd}"
-            template => "/usr/share/logstash/es_templates/auth-template.json"
-            template_name => "logs-auth"
-            template_overwrite => true
-            ilm_enabled => true
-            ilm_rollover_alias => "logs-auth"
+         filter {
+         mutate {
+            add_field => { "processed_at" => "%{+YYYY-MM-dd'T'HH:mm:ssZ}" } 
+         }
+         date {
+            match => ["processed_at", "ISO8601"]
+            target => "processed_at"
+         }
+         }
+
+         output {
+         if [log_type] == "auth" {
+            elasticsearch {
+               hosts => ["elasticsearch:9200"]
+               data_stream => "true"
+               data_stream_type => "logs"
+               data_stream_dataset => "auth"
+               data_stream_namespace => "default"
+            }
+         }
+         else if [log_type] == "kernel" {
 
       ... and so for syslog and kernel logs
       }
@@ -346,9 +326,10 @@ Implement ELK stack (Elasticsearch, Logstash, Kibana, Filebeat) for centralized 
    ```
    http://your-server-ip:5609
    ```
-4. **Access Elasticsearch**
+4. **Access Elasticsearch and its Health**
    ```
    http://your-server-ip:9209
+   http://your-server-ip:9209/_cluster/health
    ```
 
 ## ⚙️ Configuration
@@ -366,8 +347,8 @@ primary:
   configuration: |-
     [mysqld]
     # Performance Tuning
-    innodb_buffer_pool_size=3G
-    max_connections=500
+    innodb_buffer_pool_size => 70% of RAM
+    max_connections => adjust it with your needs and load of your database
     slow_query_log=1
     long_query_time=2.0
 
@@ -377,16 +358,6 @@ metrics:
     annotations:
       prometheus.io/scrape: "true"
       prometheus.io/port: "9104"
-```
-
-### Prometheus Configuration
-
-```yaml
-# prometheus.yml
-scrape_configs:
-  - job_name: 'mysql'
-    static_configs:
-      - targets: ['load-balancer-ip:9104']
 ```
 
 ## 🔍 Monitoring & Alerts
@@ -412,9 +383,8 @@ scrape_configs:
 
 The project includes pre-configured dashboards for:
 - MySQL Overview
-- Replication Status
-- Performance Metrics
-- Resource Utilization
+- mysqld Exporter and MySQL dashboards
+- MySQL replication Overview
 
 ## 🛠️ Troubleshooting
 
@@ -463,16 +433,12 @@ curl http://elk-server:5609/api/status
 
 2. **Monitoring Optimization**
    - Adjust scrape intervals in Prometheus
-   - Use recording rules for complex queries
-   - Set up appropriate retention policies
 
 ## 📚 Documentation
 
 - [MySQL Configuration Guide](docs/mysql-configuration.md)
 - [Monitoring Setup Guide](docs/monitoring-setup.md)
 - [ELK Stack Configuration](docs/elk-configuration.md)
-- [Security Best Practices](docs/security.md)
-
 
 ## 📄 License
 
@@ -485,7 +451,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Prometheus Community](https://prometheus.io/) for monitoring tools
 - [Elastic](https://elastic.co/) for the ELK stack
 
-
 ---
-
-⭐ **Star this repository if you found it helpful!**
