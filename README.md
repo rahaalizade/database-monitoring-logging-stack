@@ -11,7 +11,7 @@ This project implements a development-ready MySQL infrastructure with:
 - **ELK Stack**: Centralized logging and log analysis
 - **ArvanCloud PaaS**: Kubernetes-based container orchestration for mysql cluster set-up
 
-![design.png](design.png)
+![MySql-Cluster-design.png](design.png)
 
 ## 📋 Table of Contents
 
