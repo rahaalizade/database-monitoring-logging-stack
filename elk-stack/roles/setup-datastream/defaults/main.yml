@@ -1,0 +1,32 @@
+elasticsearch_host: "http://localhost:9209"
+elasticsearch_port: 9200
+elasticsearch_url: "{{ elasticsearch_host }}:{{ elasticsearch_port }}"
+ilm_policy_name: "logs-lifecycle-policy"
+template_priority: 200
+
+# ILM 
+ilm_hot_max_size: "1mb"
+ilm_hot_max_age: "1d"
+ilm_hot_max_docs: 100
+ilm_warm_min_age: "2d"
+ilm_cold_min_age: "7d"
+ilm_delete_min_age: "30d"
+
+# Index 
+default_shards: 1
+default_replicas: 0
+
+# Log types to create templates for
+log_types:
+  - name: auth
+    priority: 300
+    description: "Authentication logs"
+  - name: kernel
+    priority: 300
+    description: "Kernel logs"
+  - name: syslog
+    priority: 300
+    description: "System logs"
+  - name: general
+    priority: 200
+    description: "General logs"

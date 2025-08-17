@@ -1,0 +1,45 @@
+{
+  "index_patterns": ["logs-kernel-*"],
+  "data_stream": {},
+  "priority": {{ template_priority }},
+  "template": {
+    "settings": {
+      "number_of_shards": {{ default_shards }},
+      "number_of_replicas": {{ default_replicas }},
+      "index.lifecycle.name": "{{ ilm_policy_name }}"
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "message": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "log_type": {
+          "type": "keyword"
+        },
+        "host": {
+          "properties": {
+            "name": { "type": "keyword" }
+          }
+        },
+        "kernel": {
+          "properties": {
+            "facility": { "type": "keyword" },
+            "severity": { "type": "keyword" }
+          }
+        },
+        "processed_at": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}

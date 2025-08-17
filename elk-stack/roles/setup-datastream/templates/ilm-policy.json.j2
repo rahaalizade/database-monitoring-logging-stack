@@ -1,0 +1,44 @@
+{
+  "policy": {
+    "phases": {
+      "hot": {
+        "min_age": "0ms",
+        "actions": {
+          "rollover": {
+            "max_size": "{{ ilm_hot_max_size }}",
+            "max_age": "{{ ilm_hot_max_age }}",
+            "max_docs": {{ ilm_hot_max_docs }}
+          },
+          "set_priority": {
+            "priority": 100
+          }
+        }
+      },
+      "warm": {
+        "min_age": "{{ ilm_warm_min_age }}",
+        "actions": {
+          "set_priority": {
+            "priority": 50
+          },
+          "allocate": {
+            "number_of_replicas": 0
+          }
+        }
+      },
+      "cold": {
+        "min_age": "{{ ilm_cold_min_age }}",
+        "actions": {
+          "set_priority": {
+            "priority": 0
+          }
+        }
+      },
+      "delete": {
+        "min_age": "{{ ilm_delete_min_age }}",
+        "actions": {
+          "delete": {}
+        }
+      }
+    }
+  }
+}

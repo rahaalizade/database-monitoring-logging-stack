@@ -1,0 +1,18 @@
+- name: Create ILM Policy
+  uri:
+    url: "{{ elasticsearch_host }}/_ilm/policy/{{ ilm_policy_name }}"
+    method: PUT
+    body_format: json
+    body: "{{ lookup('template', 'ilm-policy.json.j2') }}"
+    status_code: 200
+  register: ilm_creation
+
+- name: Create Index Templates
+  uri:
+    url: "{{ elasticsearch_host }}/_index_template/logs-{{ item.name }}-template"
+    method: PUT
+    body_format: json
+    body: "{{ lookup('template', item.name + '-template.json.j2') }}"
+    status_code: 200
+  loop: "{{ log_types }}"
+  register: template_creation

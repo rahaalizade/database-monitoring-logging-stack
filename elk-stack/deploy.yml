@@ -13,3 +13,4 @@
   roles:
     - install-docker
     - manage-elk
+    - setup-datastream
