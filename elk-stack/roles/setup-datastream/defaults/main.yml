@@ -1,5 +1,5 @@
-elasticsearch_host: "http://localhost:9209"
-elasticsearch_port: 9200
+elasticsearch_host: "http://localhost"
+elasticsearch_port: 9209
 elasticsearch_url: "{{ elasticsearch_host }}:{{ elasticsearch_port }}"
 ilm_policy_name: "logs-lifecycle-policy"
 template_priority: 200

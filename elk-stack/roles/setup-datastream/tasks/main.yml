@@ -1,6 +1,19 @@
+- name: Wait for Elasticsearch to be ready
+  block:
+    - name: Trying with uri module
+      uri:
+        url: "http://localhost:9209/_cluster/health"
+        method: GET
+        status_code: 200
+        timeout: 30
+      register: elasticsearch_health
+      retries: 30
+      delay: 10
+      until: elasticsearch_health.status == 200
+
 - name: Create ILM Policy
   uri:
-    url: "{{ elasticsearch_host }}/_ilm/policy/{{ ilm_policy_name }}"
+    url: "{{ elasticsearch_url }}/_ilm/policy/{{ ilm_policy_name }}"
     method: PUT
     body_format: json
     body: "{{ lookup('template', 'ilm-policy.json.j2') }}"
@@ -9,7 +22,7 @@
 
 - name: Create Index Templates
   uri:
-    url: "{{ elasticsearch_host }}/_index_template/logs-{{ item.name }}-template"
+    url: "{{ elasticsearch_url }}/_index_template/logs-{{ item.name }}-template"
     method: PUT
     body_format: json
     body: "{{ lookup('template', item.name + '-template.json.j2') }}"
