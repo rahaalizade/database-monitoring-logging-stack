@@ -450,6 +450,32 @@ curl http://elk-server:5609/api/status
    - Configure `max_connections` according to your workload
    - Enable slow query log for performance analysis
 
+   ```bash
+    Performance Metrics to Collect
+      Write Metrics (Master):
+      Inserts per second
+      Average insert time
+      Transaction commit time
+      Lock wait time
+
+      Read Metrics (Both servers):
+      Queries per second
+      Average query response time
+      Index hit ratio
+      Cache hit ratio
+
+   ```
+   And...
+
+   ```bash
+   Performance Indicators:
+      Queries Per Second (QPS)
+      Average Response Time
+      Replication Lag
+      Connection Handling
+      Resource Utilization
+   ```
+
 2. **Monitoring Optimization**
    - Adjust scrape intervals in Prometheus
 
