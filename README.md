@@ -101,6 +101,25 @@ The project follows a three-tier architecture:
 	   elk-stack/inventory/hosts.yml
 	   monitoring-stack/inventory/hosts.yml
    ```
+   Also for Mysqld exporter change these:
+   ```yaml
+      - job_name: mysqld-exporter 
+         scrape_interval: 30s
+         static_configs:
+            - targets: ["<LoadBalancer IP for Mysql Primary>:9104","<LoadBalancer IP for Mysql Primary>:9104"]
+   ```
+   and also in JSON dashboards:
+   ```yaml
+        "current": {
+            "text": [
+              "<LoadBalancer IP for Mysql Primary>:9104"
+            ],
+            "value": [
+              "LoadBalancer IP for Mysql Secondary:9104"
+            ]
+          },
+   ```
+     
 
 2. **Configure kubectl**
    ```bash
