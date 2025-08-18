@@ -448,21 +448,21 @@ secondary:
 
 
     # Connection Setting
-    max_connections = 200
-    thread_cache_size = 16
-    table_open_cache = 2000
-    query_cache_size = 64M
+    max_connections = 400   # Adjust it base on your needs but more cpu allows more connection handling
+    thread_cache_size = 32
+    table_open_cache = 4000  # More CPU and Memory --> Handling more open table instances
+    query_cache_size = 128M  # More memory --> larger query cache result
     query_cache_type = 1
 
     # Performance Tuning
-    innodb_buffer_pool_size = 1G
-    innodb_log_file_size = 256M
-    innodb_log_buffer_size = 16M
+    innodb_buffer_pool_size = 5G # with 8GB limit of memory and 62% to buffer pool 
+    innodb_log_file_size = 512M 
+    innodb_log_buffer_size = 32M  # big log buffer for larger transactions and cause to reduce I/O
     innodb_flush_log_at_trx_commit = 2
     innodb_flush_method = O_DIRECT
     innodb_io_capacity = 200
-    innodb_io_capacity_max = 400
-    
+    innodb_io_capacity_max = 400  # More cpu --> More I/O throughput handling
+
     # innodb_buffer_pool_size=3G    # ~75% of available memory
     # innodb_log_file_size=1G
     # innodb_flush_log_at_trx_commit=1  # ACID compliance
