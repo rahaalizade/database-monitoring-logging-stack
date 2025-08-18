@@ -117,11 +117,22 @@ primary:
 
   configuration: |-
     [mysqld]
+    server-id = 1
+    log-bin = mysql-bin
+    read_only = OFF
     authentication_policy='{{- .Values.auth.authenticationPolicy | default "* ,," }}'
     skip-name-resolve
     explicit_defaults_for_timestamp
 
     # Performance Tuning 
+    innodb_buffer_pool_size = 1G
+    innodb_log_file_size = 256M
+    innodb_log_buffer_size = 16M
+    innodb_flush_log_at_trx_commit = 1
+    innodb_flush_method = O_DIRECT
+    innodb_io_capacity = 200
+    innodb_io_capacity_max = 400
+
     # innodb_buffer_pool_size=3G    # ~75% of available memory
     # innodb_log_file_size=1G
     # innodb_flush_log_at_trx_commit=1  # ACID compliance
@@ -138,17 +149,14 @@ primary:
 
     port={{ .Values.primary.containerPorts.mysql }}
 
-    # MysqlX config
-    mysqlx={{ ternary 1 0 .Values.primary.enableMySQLX }}
-    mysqlx_port={{ .Values.primary.containerPorts.mysqlx }}
-
     # Connection Settings
-    max_connections=500          # Increase connection limit
     max_allowed_packet=16M
+    max_connections = 200 
+    thread_cache_size = 16
+    table_open_cache = 2000
+    query_cache_size = 64M
+    query_cache_type = 1
 
-    # Security
-    bind-address=0.0.0.0
-    
     character-set-server=UTF8
 
     # Monitoring
@@ -432,13 +440,29 @@ secondary:
 
   configuration: |-
     [mysqld]
-    server-id=2                       # Unique ID (increment for each replica)
-    read_only=1                       # Make slave read-only
+    server-id = 2                       # Unique ID (increment for each replica)
+    read_only = ON                       # Make slave read-only
     authentication_policy='{{- .Values.auth.authenticationPolicy | default "* ,," }}'
     skip-name-resolve
     explicit_defaults_for_timestamp
 
-    # Performance Tuning 
+
+    # Connection Setting
+    max_connections = 200
+    thread_cache_size = 16
+    table_open_cache = 2000
+    query_cache_size = 64M
+    query_cache_type = 1
+
+    # Performance Tuning
+    innodb_buffer_pool_size = 1G
+    innodb_log_file_size = 256M
+    innodb_log_buffer_size = 16M
+    innodb_flush_log_at_trx_commit = 2
+    innodb_flush_method = O_DIRECT
+    innodb_io_capacity = 200
+    innodb_io_capacity_max = 400
+    
     # innodb_buffer_pool_size=3G    # ~75% of available memory
     # innodb_log_file_size=1G
     # innodb_flush_log_at_trx_commit=1  # ACID compliance
